@@ -1,82 +1,43 @@
-import { useState, useEffect } from 'react'
+import IMG from "../images";
+import Counter from "../components/Counter";
+import { useReveal } from "../hooks";
 
-function useCounter(target, duration = 2000) {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    let start = 0
-    const step = target / (duration / 16)
-    const timer = setInterval(() => {
-      start += step
-      if (start >= target) {
-        setCount(target)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(start))
-      }
-    }, 16)
-    return () => clearInterval(timer)
-  }, [target, duration])
-  return count
-}
-
-function Home() {
-  const players = useCounter(120)
-  const courts = useCounter(45)
-  const cities = useCounter(12)
-  const matches = useCounter(300)
-
+function Home({setPage}){
+  const r1=useReveal(), r2=useReveal(), r3=useReveal();
+  const cards=[
+    { icon: "🏀", title: "About Us",  desc: "Learn the story behind DunkFloor and our identity.", target: "About" },
+    { icon: "📍", title: "Services",  desc: "View our features — players, courts, and community.", target: "Services" },
+    { icon: "✉️", title: "Contact",   desc: "Reach out and connect with the DunkFloor platform.", target: "Contact" },
+  ];
   return (
-    <div className="container">
-
-      <section className="hero-image-box">
-        <div className="hero-overlay">
-          <h2>Welcome to DunkFloor</h2>
-          <p>
-            DunkFloor is a Lebanese street basketball platform that highlights
-            the culture of La3ibe and Mal3ab across Lebanon.
-          </p>
-          <p>
-            Built with React — connecting players, courts, and the community.
-          </p>
-        </div>
-      </section>
-
-      <section className="stats-section">
-        <div className="stat-card">
-          <h3>{players}+</h3>
-          <p>Players</p>
-        </div>
-        <div className="stat-card">
-          <h3>{courts}+</h3>
-          <p>Courts</p>
-        </div>
-        <div className="stat-card">
-          <h3>{cities}+</h3>
-          <p>Cities</p>
-        </div>
-        <div className="stat-card">
-          <h3>{matches}+</h3>
-          <p>Matches</p>
-        </div>
-      </section>
-
-      <section className="home-content">
-        <div className="card">
-          <h3>About Us</h3>
-          <p>Learn more about the idea behind DunkFloor and our identity.</p>
-        </div>
-        <div className="card">
-          <h3>Services</h3>
-          <p>View our featured basketball activities and categories.</p>
-        </div>
-        <div className="card">
-          <h3>Contact</h3>
-          <p>Send us your information using the contact form.</p>
-        </div>
-      </section>
-
-    </div>
-  )
+    <div className="page-enter">
+<section className="hero-image-box" style={{backgroundImage:`url(${IMG.b1})`}}>
+<div className="hero-overlay">
+<h2>Welcome to DunkFloor</h2>
+<p>Lebanese street basketball - highlight the culture of La3ibe and Mal3ab across Lebanon</p>
+</div>
+</section>
+<div ref={r1} className="reveal stats-bar">
+<Counter target={150} label="La3ibe" />
+        <Counter target={30}  label="Mal3ab" />
+        <Counter target={6}   label="Regions" />
+        <Counter target={500} label="Community" />
+</div>
+<div ref={r2} className="reveal section-title">
+<h2>Explore DunkFloor</h2>
+<p>Discover players, courts, and community across Lebanon</p>
+</div>
+<div ref={r3} className="reveal cards-grid">
+  {cards.map(c =>(
+    <div key={c.title} className="card" onClick={()=> setPage(c.target)}>
+      <div className="card-icon">{c.icon}</div>
+      <h3>{c.title}</h3>
+      <p>{c.desc}</p>
+      </div>
+  ))}
+  </div>
+  </div>
+  );
 }
-
-export default Home
+export default Home;
+ 

@@ -1,173 +1,130 @@
-import { useState } from 'react'
+import { useState } from "react";
+import IMG from "../images";
+import { useReveal } from "../hooks";
 
-function Contact() {
-  const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    gender: '',
-    message: ''
-  })
-  const [errors, setErrors] = useState({})
-  const [success, setSuccess] = useState(false)
+const REGIONS = ["Bakhoun","El Mina","Beirut","Akkar","Keserwan","Zahle"];
+const INTERESTS =["Laeibe","Mal3ab","Updates"];
+const INIT={fullName:"", email:"",region:"Bakhoun",gender:"",interests:[],message:""};
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  function validate() {
-    let newErrors = {}
-    if (!form.firstName.trim()) newErrors.firstName = 'First name is required'
-    if (!form.lastName.trim()) newErrors.lastName = 'Last name is required'
-    if (!form.email.trim()) newErrors.email = 'Email is required'
-    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Invalid email address'
-    if (!form.gender) newErrors.gender = 'Please select your gender'
-    if (!form.message.trim()) newErrors.message = 'Message is required'
-    return newErrors
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault()
-    const newErrors = validate()
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-    } else {
-      setErrors({})
-      setSuccess(true)
-    }
-  }
-
-  if (success) {
-    return (
-      <div className="container">
-        <section className="hero-box" style={{ textAlign: 'center', padding: '3rem' }}>
-          <h2>Message Sent! 🏀</h2>
-          <p>Thank you for reaching out. We'll get back to you soon.</p>
-          <br />
-          <button onClick={() => { setSuccess(false); setForm({ firstName: '', lastName: '', email: '', gender: '', message: '' }) }}>
-            Send Another Message
-          </button>
-        </section>
-      </div>
-    )
-  }
-
-  return (
-    <div className="container">
-      <div className="contact-layout">
-
-        <div className="contact-info-panel">
-          <div className="contact-hero">
-            <div className="contact-overlay">
-              <h2>Get In Touch</h2>
-              <p>Have a question or want to collaborate? Reach out to the DunkFloor team.</p>
-            </div>
-          </div>
-
-          <div className="contact-info-card">
-            <h3>Contact Info</h3>
-            <p>We'd love to hear from you.</p>
-            <ul className="contact-points">
-              <li>📍 Lebanon — From Bakhoun to Beirut</li>
-              <li>📧 dunkfloor@gmail.com</li>
-              <li>📱 +961 XX XXX XXX</li>
-              <li>🕐 Mon – Fri, 9am – 6pm</li>
-            </ul>
-            <div className="contact-extra">
-              <p>Follow us on social media</p>
-              <p>@DunkFloor</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="form-section">
-          <h3>Send Us a Message</h3>
-          <form onSubmit={handleSubmit}>
-
-            <div className="form-group">
-              <label>First Name:</label>
-              <input
-                type="text"
-                name="firstName"
-                placeholder="Enter your first name"
-                value={form.firstName}
-                onChange={handleChange}
-              />
-              {errors.firstName && <p style={{ color: 'red', marginTop: '4px' }}>{errors.firstName}</p>}
-            </div>
-
-            <div className="form-group">
-              <label>Last Name:</label>
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Enter your last name"
-                value={form.lastName}
-                onChange={handleChange}
-              />
-              {errors.lastName && <p style={{ color: 'red', marginTop: '4px' }}>{errors.lastName}</p>}
-            </div>
-
-            <div className="form-group">
-              <label>Email:</label>
-              <input
-                type="text"
-                name="email"
-                placeholder="Enter your email"
-                value={form.email}
-                onChange={handleChange}
-              />
-              {errors.email && <p style={{ color: 'red', marginTop: '4px' }}>{errors.email}</p>}
-            </div>
-
-            <div className="form-group">
-              <label>Gender:</label>
-              <div className="gender-group">
-                <label className={`gender-option ${form.gender === 'male' ? 'selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="male"
-                    checked={form.gender === 'male'}
-                    onChange={handleChange}
-                  />
-                  ♂ Male
-                </label>
-                <label className={`gender-option ${form.gender === 'female' ? 'selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="female"
-                    checked={form.gender === 'female'}
-                    onChange={handleChange}
-                  />
-                  ♀ Female
-                </label>
-              </div>
-              {errors.gender && <p style={{ color: 'red', marginTop: '4px' }}>{errors.gender}</p>}
-            </div>
-
-            <div className="form-group">
-              <label>Message:</label>
-              <textarea
-                name="message"
-                placeholder="Write your message here..."
-                value={form.message}
-                onChange={handleChange}
-              />
-              {errors.message && <p style={{ color: 'red', marginTop: '4px' }}>{errors.message}</p>}
-            </div>
-
-            <div className="form-buttons">
-              <button type="submit">Send Message</button>
-            </div>
-
-          </form>
-        </div>
-
-      </div>
-    </div>
-  )
+function validate(f){
+  const e ={};
+  if (!f.fullName.trim()) e.fullName="Full name is required";
+  if(!f.email.trim()) e.email="Email is required";
+  else if (!/^[^@]+@[^@]+\.[^@]+$/.test(f.email)) e.email="Enter a valid email";
+  if(!f.gender)e.gender="Please select a gender";
+  if(!f.message.trim())e.message="Message cannot be empty";
+  return e;
 }
+function Contact(){
+  const [form, setForm]=useState(INIT);
+  const[errors, setErrors]=useState({});
+  const [submitted, setSubmitted] =useState(false);
+  const r1= useReveal(), r2=useReveal(), r3=useReveal();
 
-export default Contact
+  const handleChange = e=>{
+    const {name, value} = e.target;
+    setForm(p=> ({...p,[name]:value})
+    );
+    if(errors[name])setErrors(p=>({...p,[name]:""}
+
+    )
+
+    );
+  };
+  const toggleInterset = v =>
+    setForm(p =>({...p,interests:p.interests.includes(v)? p.interests.filter(i=>i!==v):[...p.interests,v]}));
+  const handleSubmit = e =>{
+    e.preventDefault();
+    const errs=validate(form);
+    if(Object.keys(errs).length){setErrors(errs);return;}
+    setSubmitted(true);
+  };
+  const handleReset =() =>{setForm(INIT); setErrors({}); setSubmitted(false);};
+  return(
+    <div className="page-enter">
+      <div className="section-title">
+<h2>Contact DunkFloor</h2>
+<p>Reach out to share feedback or connect with the community</p>
+      </div>
+      <section className="contact-layout">
+        <div ref={r1} className="reveal contact-info-panel">
+          <div className="contact-her" style={{ backgroundImage: `url(${IMG.b6})` }}>
+<div className="contact-overlay">
+  <h2>Let's Talk</h2>
+  <p>DunkFloor is built for La3ibe, Mal3ab, and the culture around the game</p>
+
+</div>
+          </div>
+<div className="contact-info-card">
+  <h3>Why Contact Us?</h3>
+  <p>Send your message, ask about the platform, or share ideas about Lebanese street basketball</p>
+  <ul className="contact-points">
+     {["Ask a question","Share feedback","Suggest a Mal3ab","Connect with the platform"].map(i=><li key={i}>{i}</li>)}
+  </ul>
+<div className="contact-extra"><p>Built for La3ibe</p><p>Powered by Mal3ab</p>
+
+</div>
+</div>
+        </div>
+<div ref={r2} className="reveal form-sectiom">
+  <h3>Send Us Your Information</h3>
+  {submitted && <div className="success-banner">✅Message sent! We'll get back to you soon</div>}
+  <form onSubmit={handleSubmit}noValidate>
+    <div className="form-group">
+      <label>Full Name</label>
+      <input type="text" name="fullName" placeholder="Enter your full name" value={form.fullName} onChange={handleChange} className={errors.fullName?"input-error":""}/>
+      {errors.fullName && <span className="error-msg">{errors.fullName}</span>}
+    </div>
+    <div className="form-group">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="Enter your email" value={form.email} onChange={handleChange} className={errors.email?"input-error":""}/>
+      {errors.email && <span className="error-msg">{errors.email}</span>}
+    </div>
+    <div className="form-group">
+      <label>Region</label>
+      <select name="region" value={form.region} onChange={handleChange}>
+        {REGIONS.map(r=> <option key={r}>{r}</option>)}
+      </select>
+    </div>
+    <div className="form-group">
+      <label>Gender</label>
+      <div className="option-row">
+        {["Male","Female"].map(g=>(
+          <label key={g} className="option-item">
+            <input type="radio" name="gender" value={g} checked={form.gender===g} onChange={handleChange} /> {g}
+          </label>
+        ))}
+      </div>
+      {errors.gender && <span className="error-msg">{errors.gender}</span>}
+    </div>
+    <div className="form-group">
+      <label>Interested In</label>
+      <div className="option-row">
+        {INTERESTS.map(i => (
+          <label key={i} className="option-item">
+            <input type="checkbox" checkbox={form.interests.includes(i)} onChange={()=> toggleInterest(i)}/> {i}
+
+          </label>
+        ))}
+      </div>
+      </div>
+      <div className="form-group">
+        <label>Message</label>
+        <textarea name="message" placeholder="Write your message..." value={form.message} onChange={handleChange} className={errors.message? "input-error":""} maxLength={500} />
+        <div className="char-count">{form.message.length} / 500</div>
+        {errors.message && <span className="error-msg">{errors.message}</span>}
+      </div>
+      <div className="form-group">
+        <button type="submit" className="btn">Submit</button>
+        <button type="button" className="btn btn-reset" onClick={handleReset}>Reset</button>
+      </div>
+    
+  </form>
+</div>
+
+      </section>
+    </div>
+   
+  );
+}
+export default Contact;

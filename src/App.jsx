@@ -1,43 +1,38 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
-import Home from './pages/Home'
-import About from './pages/About'
-import Services from './pages/Services'
-import Contact from './pages/Contact'
-import Donate from './pages/Donate'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import Header from "./components/Header";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Services from "./pages/Services";
+import Contact from "./pages/Contact";
+import Donate from "./pages/Donate";
 
 function App() {
+  const [page, setPage] = useState("Home");
+
+  const renderPage = () => {
+    switch (page) {
+      case "Home":     return <Home setPage={setPage} />;
+      case "About":    return <About />;
+      case "Services": return <Services />;
+      case "Contact":  return <Contact />;
+      case "Donate":   return <Donate />;
+      default:         return <Home setPage={setPage} />;
+    }
+  };
+
   return (
-    <BrowserRouter>
+    <>
+      <Header />
+      <Navbar page={page} setPage={setPage} />
       <div className="container">
-        <header>
-          <h1>DunkFloor</h1>
-          <p className="tagline">Where La3ibe own the Mal3ab</p>
-          <p className="subtagline">From Bakhoun to Beirut</p>
-        </header>
-
-        <nav className="navbar">
-          <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>Home</NavLink>
-          <NavLink to="/about" className={({ isActive }) => isActive ? 'active' : ''}>About</NavLink>
-          <NavLink to="/services" className={({ isActive }) => isActive ? 'active' : ''}>Services</NavLink>
-          <NavLink to="/contact" className={({ isActive }) => isActive ? 'active' : ''}>Contact</NavLink>
-          <NavLink to="/donate" className={({ isActive }) => isActive ? 'active' : ''}>Donate</NavLink>
-        </nav>
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/donate" element={<Donate />} />
-        </Routes>
-
-        <footer>
-          <p>&copy; 2026 DunkFloor</p>
-        </footer>
+        {renderPage()}
+        <Footer />
       </div>
-    </BrowserRouter>
-  )
+    </>
+  );
 }
 
-export default App
+export default App;
