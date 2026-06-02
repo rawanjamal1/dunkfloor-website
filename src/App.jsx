@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
@@ -9,29 +10,50 @@ import Services from "./pages/Services";
 import Contact from "./pages/Contact";
 import Donate from "./pages/Donate";
 
-function App() {
-  const [page, setPage] = useState("Home");
+// DOM Manipulation: changes document.title on every route change
+function TitleUpdater() {
+  const location = useLocation();
+  useEffect(() => {
+    const titles = {
+      "/":        "DunkFloor — Home",
+      "/about":   "DunkFloor — About",
+      "/services":"DunkFloor — Services",
+      "/contact": "DunkFloor — Contact",
+      "/donate":  "DunkFloor — Donate",
+    };
+    // Direct DOM manipulation
+    document.title = titles[location.pathname] || "DunkFloor";
+    // Scroll to top on page change
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location]);
+  return null;
+}
 
-  const renderPage = () => {
-    switch (page) {
-      case "Home":     return <Home setPage={setPage} />;
-      case "About":    return <About />;
-      case "Services": return <Services />;
-      case "Contact":  return <Contact />;
-      case "Donate":   return <Donate />;
-      default:         return <Home setPage={setPage} />;
-    }
-  };
-
+function AppLayout() {
   return (
     <>
+      <TitleUpdater />
       <Header />
-      <Navbar page={page} setPage={setPage} />
+      <Navbar />
       <div className="container">
-        {renderPage()}
+        <Routes>
+          <Route path="/"         element={<Home />} />
+          <Route path="/about"    element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/contact"  element={<Contact />} />
+          <Route path="/donate"   element={<Donate />} />
+        </Routes>
         <Footer />
       </div>
     </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppLayout />
+    </BrowserRouter>
   );
 }
 
